@@ -21,6 +21,10 @@ public:
     uint8_t GetCountOfLives() const;
     uint8_t GetCountOfHints() const;
 
+    size_t GetDeckSize() const;
+    const Dump& GetDump() const;
+    const std::map<CARD_COLOR, uint8_t>& GetCountOfStackedCards() const;
+
     bool AddGemer(const std::string& name);
     const std::vector<Gamer>& GetGamers() const;
 
@@ -43,6 +47,8 @@ private:
     bool TryToDecrementHints();
 
     void NextGamer();
+
+    bool IsAllStacked() const;
 
 
 private:

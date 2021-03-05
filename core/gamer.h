@@ -15,7 +15,9 @@ public:
     size_t CardCount() const;
     void HintColor(CARD_COLOR color);
     void HintRank(uint8_t rank);
+
     std::string GetName() const;
+    const HAND& GetCards() const;
 
     Card PlayCard(size_t card_no);
 

@@ -18,9 +18,29 @@ uint8_t Board::GetCountOfHints() const {
     return _count_of_hints;
 }
 
+size_t  Board::GetDeckSize() const {
+    return _deck.GetSize();
+}
+
+const Dump&  Board::GetDump() const {
+    return _dump;
+}
+
+const std::map<CARD_COLOR, uint8_t>& Board::GetCountOfStackedCards() const {
+    return _count_of_stacked_cards;
+}
+
 bool Board::AddGemer(const std::string& name) {
+    if (_is_game_running) {
+        return false;
+    }
     if (_gamers.size() == MAX_NUMBER_OF_GAMERS) {
         return false;
+    }
+    for (const auto& gamer : _gamers) {
+        if (name == gamer.GetName()) {
+            return false;
+        }
     }
     _gamers.emplace_back(name);
     return true;
@@ -40,7 +60,8 @@ bool Board::TryToIncrementLives() {
 }
 
 bool Board::TryToDecrementLives() {
-    if (_count_of_lives == 0) {
+    if (_count_of_lives < 2) {
+        _count_of_lives = 0;
         _is_game_running = false;
         return false;
     }
@@ -64,8 +85,15 @@ bool Board::TryToDecrementHints() {
     return true;
 }
 
+bool Board::IsAllStacked() const {
+    return GetScore() == 25;
+}
+
 
 bool Board::PlayCard(size_t card_no) {
+    if (!_is_game_running) {
+        return false;
+    }
     Gamer& current_gamer = _gamers[_current_gamer_no];
     NextGamer();
     Card card = current_gamer.PlayCard(card_no);
@@ -77,6 +105,9 @@ bool Board::PlayCard(size_t card_no) {
         if (card.GetRank() == 5) {
             TryToIncrementHints();
         }
+        if (IsAllStacked()) {
+            _is_game_running = false;
+        }
         return true;
     } else {
         _dump.AddCard(card);
@@ -86,6 +117,9 @@ bool Board::PlayCard(size_t card_no) {
 }
 
 void Board::DumpCart(size_t card_no) {
+    if (!_is_game_running) {
+        return;
+    }
     Gamer& current_gamer = _gamers[_current_gamer_no];
     NextGamer();
     _dump.AddCard(current_gamer.PlayCard(card_no));
@@ -96,21 +130,27 @@ void Board::DumpCart(size_t card_no) {
 }
 
 void Board::PromptColor(size_t gamer_no, CARD_COLOR color) {
-    NextGamer();
+    if (!_is_game_running) {
+        return;
+    }
     if (gamer_no < _gamers.size() && gamer_no != _current_gamer_no) {
         if (TryToDecrementHints()) {
             _gamers.at(gamer_no).HintColor(color);
         }
     }
+    NextGamer();
 }
 
 void Board::PromptRank(size_t gamer_no, uint8_t rank) {
-    NextGamer();
+    if (!_is_game_running) {
+        return;
+    }
     if (gamer_no < _gamers.size() && gamer_no != _current_gamer_no) {
         if (TryToDecrementHints()) {
             _gamers.at(gamer_no).HintRank(rank);
         }
     }
+    NextGamer();
 }
 
 bool Board::TryToStartGame() {

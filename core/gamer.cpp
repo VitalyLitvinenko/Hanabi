@@ -31,6 +31,10 @@ std::string Gamer::GetName() const {
     return _name;
 }
 
+const HAND& Gamer::GetCards() const {
+    return _hand;
+}
+
 Card Gamer::PlayCard(size_t card_no) {
     if (card_no >= _hand.size()) {
         // TODO: add exception
