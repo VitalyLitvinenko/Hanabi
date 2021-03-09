@@ -1,26 +1,18 @@
 #include <QApplication>
 
-#include "core/board.h"
-#include <iostream>
+#include "network/client.h"
+#include "network/server.h"
 
-#include "widgets/cardwidget.h"
-#include "widgets/deckwidget.h"
-#include "widgets/dumpwidget.h"
-#include "widgets/gamerwidget.h"
-#include "widgets/boardwidget.h"
 #include <QtWidgets>
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
-    Board board;
-    board.AddGemer("Stas");
-    board.AddGemer("Olga");
-    board.AddGemer("Kirill");
-    board.TryToStartGame();
+    // Server server;
+    // server.show();
 
-    BoardWidget game(board);
+    Client client;
+    client.show();
 
-    game.show();
     return app.exec();
 }

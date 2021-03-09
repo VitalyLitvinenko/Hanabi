@@ -7,6 +7,7 @@
 class Deck {
 public:
     Deck();
+    explicit Deck(uint8_t size);
 
     bool IsEmpty() const;
     size_t GetSize() const;

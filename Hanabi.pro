@@ -1,6 +1,6 @@
-QT += core gui
+QT += core gui network widgets
 
-CONFIG += c++17 console debug
+CONFIG += c++17 console release
 CONFIG -= app_bundle
 
 TEMPLATE = app
@@ -11,6 +11,8 @@ TARGET = Hanabi
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+        network/server.cpp \
+        network/client.cpp \
         widgets/boardwidget.cpp \
         widgets/cardslotwidget.cpp \
         widgets/cardwidget.cpp \
@@ -31,6 +33,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    network/client.h \
+    network/protocol.h \
+    network/server.h \
     widgets/boardwidget.h \
     widgets/cardslotwidget.h \
     widgets/cardwidget.h \
@@ -44,4 +49,3 @@ HEADERS += \
     widgets/gamerwidget.h \
     widgets/stackwidget.h
 
-QT += widgets

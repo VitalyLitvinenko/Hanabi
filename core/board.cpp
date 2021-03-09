@@ -6,6 +6,51 @@ Board::Board() : _count_of_lives(MAX_NUMBER_OF_LIVES),
                  _is_game_running(false) {
 }
 
+Board::Board(const std::vector<uint8_t>& data) {
+    size_t it = 0;
+    _count_of_stacked_cards[CARD_COLOR::BLUE] = data[it++];
+    _count_of_stacked_cards[CARD_COLOR::GREEN] = data[it++];
+    _count_of_stacked_cards[CARD_COLOR::RED] = data[it++];
+    _count_of_stacked_cards[CARD_COLOR::WHITE] = data[it++];
+    _count_of_stacked_cards[CARD_COLOR::YELLOW] = data[it++];
+
+    _count_of_lives = data[it++];
+    _count_of_hints = data[it++];
+
+    _is_game_running = false;
+
+    auto gamers_count = data[it++];
+    for (size_t gamers_no = 0; gamers_no < gamers_count; ++gamers_no) {
+        auto name_size = data[it++];
+        AddGamer(std::string(data.begin()+it, data.begin()+it+name_size));
+        it += name_size;
+        auto card_count = data[it++];
+        for (size_t card_no = 0; card_no < card_count; ++card_no) {
+            CARD_COLOR color = static_cast<CARD_COLOR>(data[it++]);
+            auto rank = data[it++];
+            _gamers.back().AddCard({color, rank});
+            if (data[it++]) {
+                _gamers.back().HintColor(color);
+            }
+            if (data[it++]) {
+                _gamers.back().HintRank(rank);
+            }
+        }
+    }
+
+    _current_gamer_no = data[it++];
+    _deck = Deck(data[it++]);
+
+    auto dump_size = data[it++];
+    for (size_t card_no = 0; card_no < dump_size; ++card_no) {
+        CARD_COLOR color = static_cast<CARD_COLOR>(data[it++]);
+        auto rank = data[it++];
+        _dump.AddCard({color, rank});
+    }
+
+    _is_game_running = data[it++];
+}
+
 uint8_t Board::GetCountOfStackedCards(CARD_COLOR color) {
     return _count_of_stacked_cards[color];
 }
@@ -30,7 +75,7 @@ const std::map<CARD_COLOR, uint8_t>& Board::GetCountOfStackedCards() const {
     return _count_of_stacked_cards;
 }
 
-bool Board::AddGemer(const std::string& name) {
+bool Board::AddGamer(const std::string& name) {
     if (_is_game_running) {
         return false;
     }
@@ -116,7 +161,7 @@ bool Board::PlayCard(size_t card_no) {
     }
 }
 
-void Board::DumpCart(size_t card_no) {
+void Board::DumpCard(size_t card_no) {
     if (!_is_game_running) {
         return;
     }
@@ -191,4 +236,45 @@ void Board::NextGamer() {
     if (_gamers[_current_gamer_no].CardCount() < CARDS_ON_HAND) {
         _is_game_running = false;
     }
+}
+
+std::vector<uint8_t> Board::ToByteArray() {
+    std::vector<uint8_t> res;
+    res.push_back(_count_of_stacked_cards[CARD_COLOR::BLUE]);
+    res.push_back(_count_of_stacked_cards[CARD_COLOR::GREEN]);
+    res.push_back(_count_of_stacked_cards[CARD_COLOR::RED]);
+    res.push_back(_count_of_stacked_cards[CARD_COLOR::WHITE]);
+    res.push_back(_count_of_stacked_cards[CARD_COLOR::YELLOW]);
+
+    res.push_back(_count_of_lives);
+    res.push_back(_count_of_hints);
+
+    res.push_back(_gamers.size());
+    for (auto gamer : _gamers) {
+        auto name = gamer.GetName();
+        res.push_back(name.size());
+        res.insert(res.end(), name.begin(), name.end());
+        auto cards = gamer.GetCards();
+        res.push_back(cards.size());
+        for (auto card : cards) {
+            res.push_back(static_cast<uint8_t>(card.first.GetColor()));
+            res.push_back(card.first.GetRank());
+            res.push_back(card.second.is_known_color);
+            res.push_back(card.second.is_known_rank);
+        }
+    }
+
+    res.push_back(_current_gamer_no);
+    res.push_back(_deck.GetSize());
+
+    auto dump_cards = _dump.GetCards();
+    res.push_back(dump_cards.size());
+    for (auto card : dump_cards) {
+        res.push_back(static_cast<uint8_t>(card.GetColor()));
+        res.push_back(card.GetRank());
+    }
+
+    res.push_back(_is_game_running);
+
+    return res;
 }

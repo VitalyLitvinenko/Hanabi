@@ -19,6 +19,10 @@ Deck::Deck() {
     Shuffle();
 }
 
+Deck::Deck(uint8_t size) {
+    _deck.resize(size, {CARD_COLOR::WHITE, 0});
+}
+
 bool Deck::IsEmpty() const {
     return _deck.empty();
 }

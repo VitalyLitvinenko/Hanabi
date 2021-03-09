@@ -34,9 +34,9 @@ private:
     QHBoxLayout *main_layout;
 
 public:
-    explicit BoardWidget(const Board& board, size_t current_gamer_no = -1, QWidget *parent = nullptr);
+    explicit BoardWidget(QWidget *parent = nullptr);
 
-    void Refresh();
+    void Refresh(const Board& board, size_t current_gamer_no = -1);
 
 public slots:
     void slotCardClicked(int card_no, CARD_COLOR color, uint8_t rank);
@@ -44,4 +44,10 @@ public slots:
     void slotDump();
     void slotHintColor();
     void slotHintRank();
+
+signals:
+    void signalPlayCard(int card_no);
+    void signalDumpCard(int card_no);
+    void signalHintColor(int gamer_no, CARD_COLOR color);
+    void signalHintRank(int gamer_no, uint8_t rank);
 };

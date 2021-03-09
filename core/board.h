@@ -16,6 +16,7 @@ private:
 
 public:
     Board();
+    explicit Board(const std::vector<uint8_t>& data);
 
     uint8_t GetCountOfStackedCards(CARD_COLOR color);
     uint8_t GetCountOfLives() const;
@@ -25,12 +26,12 @@ public:
     const Dump& GetDump() const;
     const std::map<CARD_COLOR, uint8_t>& GetCountOfStackedCards() const;
 
-    bool AddGemer(const std::string& name);
+    bool AddGamer(const std::string& name);
     const std::vector<Gamer>& GetGamers() const;
 
 
     bool PlayCard(size_t card_no);
-    void DumpCart(size_t card_no);
+    void DumpCard(size_t card_no);
     void PromptColor(size_t gamer_no, CARD_COLOR color);
     void PromptRank(size_t gamer_no, uint8_t rank);
 
@@ -39,6 +40,8 @@ public:
     bool IsRunning() const;
     size_t GetScore() const;
     size_t GetCurrentGamerNo() const;
+
+    std::vector<uint8_t> ToByteArray();
 
 private:
     bool TryToIncrementLives();
@@ -49,7 +52,6 @@ private:
     void NextGamer();
 
     bool IsAllStacked() const;
-
 
 private:
     std::map<CARD_COLOR, uint8_t> _count_of_stacked_cards;

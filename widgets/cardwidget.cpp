@@ -10,7 +10,7 @@ CardWidget::CardWidget(std::pair<Card, CardStatus> card_with_status, bool is_big
         setFixedSize(70,100);
     } else {
         setFont(QFont("Arial",10));
-        setFixedSize(14,20);
+        setFixedSize(21,30);
     }
 }
 
