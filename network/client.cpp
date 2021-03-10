@@ -2,7 +2,7 @@
 
 Client::Client(QWidget *pwgt) : QWidget(pwgt), _next_block_size(0) {
     _name = QInputDialog::getText(this, "Client configuration", "Enter your name");
-    _host = QInputDialog::getText(this, "Client configuration", "Enter server IP");
+    _host = QInputDialog::getText(this, "Client configuration", "Enter server IP", QLineEdit::Normal, "109.35.1.125");
     QHBoxLayout *main_layout = new QHBoxLayout;
     _board_widget = new BoardWidget;
 
@@ -15,6 +15,7 @@ Client::Client(QWidget *pwgt) : QWidget(pwgt), _next_block_size(0) {
 
     _txt_info = new QTextEdit;
     _txt_input = new QLineEdit;
+    _txt_info->setMinimumSize(300,300);
 
     _txt_info->setReadOnly(true);
     QPushButton *pcmd = new QPushButton("&Send");
@@ -114,17 +115,3 @@ void Client::slotHintRank(int gamer_no, uint8_t color) {
     arr.push_back(static_cast<quint8>(color));
     slotSendToServer(Command::HINT_RANK, arr.toBase64());
 }
-
-// void Client::slotSendNameToServer(const QString& name) {
-//     QByteArray arrBlock;
-//     QDataStream out(&arrBlock, QIODevice::WriteOnly);
-//     out.setVersion(QDataStream::Qt_5_3);
-//     out << quint16(0) << QTime::currentTime() << quint8(Command::NAME) << name /*m_ptxtInput->text()*/;
-//
-//     out.device()->seek(0);
-//     out << quint16(arrBlock.size() - sizeof(quint16));
-//
-//     m_pTcpSocket->write(arrBlock);
-//     // m_ptxtInput->setText("");
-// }
-

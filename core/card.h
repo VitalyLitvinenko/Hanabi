@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cinttypes>
+#include <string>
 
 enum class CARD_COLOR : char {
     WHITE,
@@ -9,6 +10,8 @@ enum class CARD_COLOR : char {
     BLUE,
     RED
 };
+
+std::string ColorToString(CARD_COLOR color);
 
 class Card {
 public:

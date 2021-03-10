@@ -74,7 +74,7 @@ void BoardWidget::Refresh(const Board& board, size_t current_gamer_no) {
 
     play_button = new QPushButton("play");
     play_button->setEnabled(false);
-    dump_button = new QPushButton("dump");
+    dump_button = new QPushButton("fold");
     dump_button->setEnabled(false);
     hint_color_button = new QPushButton("hint color");
     hint_color_button->setEnabled(false);
@@ -99,7 +99,7 @@ void BoardWidget::Refresh(const Board& board, size_t current_gamer_no) {
 
     if (!board.IsRunning()) {
         QMessageBox ms_box;
-        ms_box.setText("You score: " + QString::number(board.GetScore()));
+        ms_box.setText("Your score: " + QString::number(board.GetScore()));
         ms_box.exec();
         return;
     }

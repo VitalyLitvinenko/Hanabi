@@ -1,6 +1,17 @@
 #include "card.h"
 #include <tuple>
 
+std::string ColorToString(CARD_COLOR color) {
+    switch (color) {
+    case CARD_COLOR::BLUE:   return "blue";
+    case CARD_COLOR::GREEN:  return "green";
+    case CARD_COLOR::RED:    return "red";
+    case CARD_COLOR::WHITE:  return "white";
+    case CARD_COLOR::YELLOW: return "yellow";
+    }
+    return "";
+}
+
 Card::Card(CARD_COLOR color, uint8_t rank) :
     _color(color), _rank(rank) {}
 

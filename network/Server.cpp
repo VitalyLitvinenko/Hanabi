@@ -30,7 +30,7 @@ void Server::slotNewConnection() {
     m_ptxt->append("Client " + QString::number(pClientSocket->peerPort()) + " connected");
     connect(pClientSocket, SIGNAL(disconnected()), this, SLOT(slotDisconnected()));
     connect(pClientSocket, SIGNAL(readyRead()),this,SLOT(slotReadClient()));
-    clients[pClientSocket] = {QString::number(pClientSocket->peerPort()), clients.size()};
+    clients[pClientSocket] = {QString::number(pClientSocket->peerPort()), (unsigned int)clients.size()};
     sendToClient(Command::MESSAGE, pClientSocket, "Connected!");
 }
 
@@ -62,6 +62,7 @@ void Server::slotReadClient() {
         QString buf;
         QString info;
         QByteArray byte_array;
+        const Card *card_ptr;
         in >> time >> command >> str;
         switch (static_cast<Command>(command)) {
         case Command::NAME:
@@ -88,30 +89,46 @@ void Server::slotReadClient() {
         case Command::PLAY:
             byte_array = str.toUtf8();
             byte_array = byte_array.fromBase64(byte_array);
+            card_ptr = &(std::next(board.GetGamers()[board.GetCurrentGamerNo()].GetCards().begin(), byte_array.front())->first);
+            strMessage = clients[pClientSocket].first + " play " + ColorToString(card_ptr->GetColor()).c_str() + " " + QString::number(card_ptr->GetRank());
+            m_ptxt->append(strMessage);
+            sendToAllClients(strMessage);
             board.PlayCard(byte_array.front());
             SendNewBoard();
-            m_ptxt->append("Card played");
             break;
         case Command::DUMP:
             byte_array = str.toUtf8();
             byte_array = byte_array.fromBase64(byte_array);
+            card_ptr = &(std::next(board.GetGamers()[board.GetCurrentGamerNo()].GetCards().begin(), byte_array.front())->first);
+            strMessage = clients[pClientSocket].first + " fold " + ColorToString(card_ptr->GetColor()).c_str() + " " + QString::number(card_ptr->GetRank());
+            m_ptxt->append(strMessage);
+            sendToAllClients(strMessage);
             board.DumpCard(byte_array.front());
             SendNewBoard();
-            m_ptxt->append("Card dumped");
             break;
         case Command::HINT_COLOR:
             byte_array = str.toUtf8();
             byte_array = byte_array.fromBase64(byte_array);
+
+            strMessage = clients[pClientSocket].first + " hint " + board.GetGamers()[byte_array.at(0)].GetName().c_str()
+                    + " " + ColorToString(static_cast<CARD_COLOR>(byte_array.at(1))).c_str();
+            m_ptxt->append(strMessage);
+            sendToAllClients(strMessage);
+
             board.PromptColor(byte_array.at(0), static_cast<CARD_COLOR>(byte_array.at(1)));
-            m_ptxt->append("Color hinted");
             SendNewBoard();
             break;
         case Command::HINT_RANK:
             byte_array = str.toUtf8();
             byte_array = byte_array.fromBase64(byte_array);
+
+            strMessage = clients[pClientSocket].first + " hint " + board.GetGamers()[byte_array.at(0)].GetName().c_str()
+                    + " " + QString::number(byte_array.at(1));
+            m_ptxt->append(strMessage);
+            sendToAllClients(strMessage);
+
             board.PromptRank(byte_array.at(0), byte_array.at(1));
             SendNewBoard();
-            m_ptxt->append("Rank hinted");
             break;
         default:
             break;
@@ -148,9 +165,19 @@ QString Server::GetLocalIP() {
 }
 
 void Server::slotStartGame() {
+    if (board.IsRunning()) {
+        std::vector<std::string> names;
+        for (const auto& gamer : board.GetGamers()) {
+            names.push_back(gamer.GetName());
+        }
+        board = Board();
+        for (const auto& name : names) {
+            board.AddGamer(name);
+        }
+    }
     if (board.TryToStartGame()) {
-        m_ptxt->append("Game started");
-        _start_btn->setDisabled(true);
+        m_ptxt->append("New game started");
+        // _start_btn->setDisabled(true);
         SendNewBoard();
     } else {
         m_ptxt->append("Game not started");
