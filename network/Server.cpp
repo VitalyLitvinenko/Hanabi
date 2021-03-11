@@ -165,19 +165,18 @@ QString Server::GetLocalIP() {
 }
 
 void Server::slotStartGame() {
-    if (board.IsRunning()) {
-        std::vector<std::string> names;
-        for (const auto& gamer : board.GetGamers()) {
-            names.push_back(gamer.GetName());
-        }
-        board = Board();
-        for (const auto& name : names) {
-            board.AddGamer(name);
-        }
+    std::vector<std::string> names;
+    for (const auto& gamer : board.GetGamers()) {
+        names.push_back(gamer.GetName());
     }
+    board = Board();
+    for (const auto& name : names) {
+        board.AddGamer(name);
+    }
+
     if (board.TryToStartGame()) {
         m_ptxt->append("New game started");
-        // _start_btn->setDisabled(true);
+        sendToAllClients("New game started");
         SendNewBoard();
     } else {
         m_ptxt->append("Game not started");
